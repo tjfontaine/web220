@@ -32,11 +32,16 @@ int VTermMM::movecursor(VTermPos pos, VTermPos oldpos, int visible)
 
 int VTermMM::copyrect(VTermRect dest, VTermRect src)
 {
+  int dest_rows = dest.end_row - dest.start_row;
+  int dest_cols = dest.end_col - dest.start_col;
   return 1;
 }
 
 int VTermMM::copycell(VTermPos dest, VTermPos src)
 {
+  delete cells[dest.row][dest.col];
+  VTCell *c = cells[src.row][src.col];
+  cells[dest.row][dest.col] = new VTCell(c->pos.row, c->pos.col, c->value->c_str());
   return 1;
 }
 
@@ -83,9 +88,8 @@ int VTermMM::resize(int rows, int columns)
   return 1;
 }
 
-void VTermMM::feed(const std::string &daturs)
+void VTermMM::process_in_out()
 {
-  vterm_input_push_str(_term, VTERM_MOD_NONE, daturs.c_str(), daturs.length());
   size_t bufflen = vterm_output_bufferlen(_term);
   if(bufflen > 0)
   {
@@ -93,6 +97,18 @@ void VTermMM::feed(const std::string &daturs)
     bufflen = vterm_output_bufferread(_term, buffer, bufflen);
     write((int)fd, buffer, bufflen);
   }
+}
+
+void VTermMM::feed(const std::string &daturs, int mod)
+{
+  vterm_input_push_str(_term, (VTermModifier)mod, daturs.c_str(), daturs.length());
+  process_in_out();
+}
+
+void VTermMM::feed(VTermKey k, int mod)
+{
+  vterm_input_push_key(_term, (VTermModifier)mod, k);
+  process_in_out();
 }
 
 bool VTermMM::process()

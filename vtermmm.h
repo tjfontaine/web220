@@ -29,12 +29,14 @@ class VTermMM
     VTerm *_term;
     bool is_dirty;
     int fd;
+    void process_in_out();
 
   public:
     VTermMM(int rows=25, int columns=80);
     void setFD(int filedesc) { fd = filedesc; }
     bool isDirty() { return is_dirty; }
-    void feed(const std::string &);
+    void feed(const std::string &, int mod = VTERM_MOD_NONE);
+    void feed(VTermKey k, int mod = VTERM_MOD_NONE);
     bool process();
     int putglyph(const uint32_t[], int, VTermPos);
     int movecursor(VTermPos pos, VTermPos oldpos, int visible);
