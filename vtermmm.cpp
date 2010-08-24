@@ -99,15 +99,15 @@ void VTermMM::process_in_out()
   }
 }
 
-void VTermMM::feed(const std::string &daturs, int mod)
+void VTermMM::feed(const std::string &daturs, VTermModifier mod)
 {
-  vterm_input_push_str(_term, (VTermModifier)mod, daturs.c_str(), daturs.length());
+  vterm_input_push_str(_term, mod, daturs.c_str(), daturs.length());
   process_in_out();
 }
 
-void VTermMM::feed(VTermKey k, int mod)
+void VTermMM::feed(VTermKey k, VTermModifier mod)
 {
-  vterm_input_push_key(_term, (VTermModifier)mod, k);
+  vterm_input_push_key(_term, mod, k);
   process_in_out();
 }
 

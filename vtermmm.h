@@ -35,8 +35,8 @@ class VTermMM
     VTermMM(int rows=25, int columns=80);
     void setFD(int filedesc) { fd = filedesc; }
     bool isDirty() { return is_dirty; }
-    void feed(const std::string &, int mod = VTERM_MOD_NONE);
-    void feed(VTermKey k, int mod = VTERM_MOD_NONE);
+    void feed(const std::string &, VTermModifier mod = VTERM_MOD_NONE);
+    void feed(VTermKey k, VTermModifier mod = VTERM_MOD_NONE);
     bool process();
     int putglyph(const uint32_t[], int, VTermPos);
     int movecursor(VTermPos pos, VTermPos oldpos, int visible);

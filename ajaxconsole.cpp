@@ -67,7 +67,7 @@ void AjaxConsole::keyPressedEvent(const WKeyEvent &e)
   //if(wtmod & MetaModifier)
   //  mod |= VTERM_MOD_ALT;
 
-  term_->feed(e.text().toUTF8(), mod);
+  term_->feed(e.text().toUTF8(), (VTermModifier)mod);
   update();
 }
 
@@ -132,7 +132,7 @@ void AjaxConsole::keyWentUpEvent(const WKeyEvent &e)
 
   if(k != VTERM_KEY_NONE)
   {
-    term_->feed(k, mod);
+    term_->feed(k, (VTermModifier)mod);
     update();
   }
 }
