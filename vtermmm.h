@@ -11,16 +11,13 @@ extern "C" {
 class VTCell
 {
   public:
-    VTCell(int row, int column, const std::string &v)
+    VTCell(const std::string &v)
     {
-      pos.row = row;
-      pos.col = column;
-      value = new std::string(v);
+      value = v;
     }
     VTermColor fg_color;  
     VTermColor bg_color;
-    VTermPos pos;
-    std::string *value;
+    std::string value;
 };
 
 class VTermMM

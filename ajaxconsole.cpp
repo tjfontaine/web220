@@ -150,7 +150,7 @@ void AjaxConsole::paintEvent(WPaintDevice *paintDevice)
     {
       if(term_->cells[row][col])
       {
-        WString s(term_->cells[row][col]->value->c_str());
+        WString s(term_->cells[row][col]->value);
         painter.drawText(1.0*col*8, 1.0*12*row, 10.0, 10.0, AlignCenter, s);
       }
     }

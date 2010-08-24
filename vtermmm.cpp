@@ -6,7 +6,7 @@ VTermMM::VTermMM(int rows, int columns) : is_dirty(false), fd(0)
   {
     for(int x=0; x < columns; ++x)
     {
-      cells[y][x] = new VTCell(y, x, " ");
+      cells[y][x] = new VTCell(" ");
     }
   }
 
@@ -21,7 +21,7 @@ int VTermMM::putglyph(const uint32_t chars[], int width, VTermPos pos)
 {
   std::string s((char *)chars);
   delete cells[pos.row][pos.col];
-  cells[pos.row][pos.col] = new VTCell(pos.row, pos.col, s);
+  cells[pos.row][pos.col] = new VTCell(s);
   return 1;
 }
 
@@ -30,18 +30,26 @@ int VTermMM::movecursor(VTermPos pos, VTermPos oldpos, int visible)
   return 1;
 }
 
-int VTermMM::copyrect(VTermRect dest, VTermRect src)
+int VTermMM::copyrect(VTermRect dst, VTermRect src)
 {
-  int dest_rows = dest.end_row - dest.start_row;
-  int dest_cols = dest.end_col - dest.start_col;
+  for(int row=src.start_row; row<src.end_row; ++row)
+  {
+    int dst_row = dst.start_row + row - src.start_row;
+    for(int col=src.start_col; col<src.end_col; ++col)
+    {
+      int dst_col = dst.start_col + col - src.start_col;
+      delete cells[dst_row][dst_col];
+      cells[dst_row][dst_col] = new VTCell(cells[row][col]->value);
+    }
+  }
   return 1;
 }
 
 int VTermMM::copycell(VTermPos dest, VTermPos src)
 {
   delete cells[dest.row][dest.col];
-  VTCell *c = cells[src.row][src.col];
-  cells[dest.row][dest.col] = new VTCell(c->pos.row, c->pos.col, c->value->c_str());
+  VTCell c = *cells[src.row][src.col];
+  cells[dest.row][dest.col] = new VTCell(cells[src.row][src.col]->value);;
   return 1;
 }
 
@@ -52,7 +60,7 @@ int VTermMM::erase(VTermRect rect)
     for(int col=rect.start_col; col<rect.end_col; ++col)
     {
       delete cells[row][col];
-      cells[row][col] = new VTCell(row, col, " ");
+      cells[row][col] = new VTCell(" ");
     }
   } 
   return 1;
