@@ -208,7 +208,7 @@ class AjaxConsoleOuter : public WContainerWidget
 class keyWentDownStopBackspace : public EventSignal<WKeyEvent>
 {
   public:
-    keyWentDownStopBackspace(const char* name, WContainerWidget *wcw) : EventSignal<WKeyEvent>(name, wcw)
+    keyWentDownStopBackspace(const char *name, WContainerWidget *wcw) : EventSignal<WKeyEvent>(name, wcw)
     {
     }
   
@@ -226,13 +226,13 @@ class FakeDom: public WContainerWidget
     {
     }
 
-    EventSignal<WKeyEvent>& keyWentDown()
+    EventSignal<WKeyEvent> &keyWentDown()
     {
       EventSignalBase *b = getEventSignal("keydown");
       if(b)
-			{
+      {
         return *static_cast<EventSignal<WKeyEvent> *>(b);
-			}
+      }
       keyWentDownStopBackspace *result = new keyWentDownStopBackspace("keydown", this);
       addEventSignal(*result);
       return *result;
