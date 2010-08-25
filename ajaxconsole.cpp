@@ -148,7 +148,6 @@ void AjaxConsole::paintEvent(WPaintDevice *paintDevice)
   WFont *f = new WFont();
   f->setFamily(WFont::Monospace);
   painter.setFont(*f);
-  std::cerr << "Font size: " << size << std::endl;
   for(int row=0; row<25; ++row)
   {
     for(int col=0; col<80; ++col)
@@ -164,7 +163,6 @@ void AjaxConsole::paintEvent(WPaintDevice *paintDevice)
 
 void AjaxConsole::process(WApplication *app)
 {
-  std::cerr << "Starting AjaxConsole process" << std::endl;
   while(true)
   {
     if(term_->process())
@@ -213,12 +211,10 @@ class keyWentDownStopBackspace : public EventSignal<WKeyEvent>
   public:
     keyWentDownStopBackspace(const char* name, WContainerWidget *wcw) : EventSignal<WKeyEvent>(name, wcw)
     {
-      std::cerr << "instantiate our event" << std::endl;
     }
   
     const std::string javaScript() const
     {
-      std::cerr << "return our event javascript" << std::endl;
 
       std::string result = EventSignal<WKeyEvent>::javaScript();
       return result + "var ignoreCodes=[8,9,33,34,35,36,37,38,39,40,45,46];if(ignoreCodes.indexOf(e.keyCode) > -1){ "+ WT_CLASS + ".cancelEvent(e);}";
@@ -230,11 +226,9 @@ class FakeDom: public WContainerWidget
   public:
     FakeDom() : WContainerWidget()
     {
-      std::cerr << "Instantiate fakedom" << std::endl;
     }
     EventSignal<WKeyEvent>& keyWentDown()
     {
-      std::cerr << "Retrieve FakeDom keyWentDown" << std::endl;
       EventSignalBase *b = getEventSignal("keydown");
       if (b)
         return *static_cast<EventSignal<WKeyEvent> *>(b);
