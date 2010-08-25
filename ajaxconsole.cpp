@@ -9,6 +9,7 @@
 #include <Wt/WString>
 #include <Wt/WRectArea>
 #include <Wt/WSignal>
+#include <Wt/WFont>
 
 #include <iostream>
 
@@ -144,6 +145,10 @@ void AjaxConsole::keyWentDownEvent(const WKeyEvent &e)
 void AjaxConsole::paintEvent(WPaintDevice *paintDevice)
 {
   WPainter painter(paintDevice);
+  WFont *f = new WFont();
+  f->setFamily(WFont::Monospace);
+  painter.setFont(*f);
+  std::cerr << "Font size: " << size << std::endl;
   for(int row=0; row<25; ++row)
   {
     for(int col=0; col<80; ++col)
@@ -151,7 +156,7 @@ void AjaxConsole::paintEvent(WPaintDevice *paintDevice)
       VTCell *c = term_->cells[row][col];
       if(c != NULL && c->value != " ")
       {
-        painter.drawText(1.0*col*8, 1.0*12*row, 10.0, 10.0, AlignCenter, c->value);
+        painter.drawText(8.0*col, 12.0*row, 0, 0, AlignCenter, c->value);
       }
     }
   }
