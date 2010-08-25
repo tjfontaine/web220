@@ -148,10 +148,10 @@ void AjaxConsole::paintEvent(WPaintDevice *paintDevice)
   {
     for(int col=0; col<80; ++col)
     {
-      if(term_->cells[row][col])
+      VTCell *c = term_->cells[row][col];
+      if(c != NULL && c->value != " ")
       {
-        WString s(term_->cells[row][col]->value);
-        painter.drawText(1.0*col*8, 1.0*12*row, 10.0, 10.0, AlignCenter, s);
+        painter.drawText(1.0*col*8, 1.0*12*row, 10.0, 10.0, AlignCenter, c->value);
       }
     }
   }
