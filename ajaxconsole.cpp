@@ -43,7 +43,7 @@ AjaxConsole::AjaxConsole(WContainerWidget *parent) : WPaintedWidget(parent)
   term_ = new VTermMM(25, 80);
   struct winsize size = {25, 80, 0, 0};
   int master;
-  char *args[] = { NULL };
+  char *args[] = {NULL};
 
   pid_t kid = forkpty(&master, NULL, NULL, &size);
   if(kid == 0)
@@ -145,9 +145,9 @@ void AjaxConsole::keyWentDownEvent(const WKeyEvent &e)
 void AjaxConsole::paintEvent(WPaintDevice *paintDevice)
 {
   WPainter painter(paintDevice);
-  WFont *f = new WFont();
-  f->setFamily(WFont::Monospace);
-  painter.setFont(*f);
+  WFont f;
+  f.setFamily(WFont::Monospace);
+  painter.setFont(f);
   for(int row=0; row<25; ++row)
   {
     for(int col=0; col<80; ++col)
@@ -199,7 +199,6 @@ class AjaxConsoleOuter : public WContainerWidget
       EventSignal<WKeyEvent> &s2 = app->globalKeyPressed();
       //s2.preventPropagation();
       s2.connect(console, &AjaxConsole::keyPressedEvent);
-      //*/
 
       app->enableUpdates();
       processor = boost::thread(boost::bind(&AjaxConsole::process, console, app));
@@ -215,7 +214,6 @@ class keyWentDownStopBackspace : public EventSignal<WKeyEvent>
   
     const std::string javaScript() const
     {
-
       std::string result = EventSignal<WKeyEvent>::javaScript();
       return result + "var ignoreCodes=[8,9,33,34,35,36,37,38,39,40,45,46];if(ignoreCodes.indexOf(e.keyCode) > -1){ "+ WT_CLASS + ".cancelEvent(e);}";
     }
@@ -227,11 +225,14 @@ class FakeDom: public WContainerWidget
     FakeDom() : WContainerWidget()
     {
     }
+
     EventSignal<WKeyEvent>& keyWentDown()
     {
       EventSignalBase *b = getEventSignal("keydown");
-      if (b)
+      if(b)
+			{
         return *static_cast<EventSignal<WKeyEvent> *>(b);
+			}
       keyWentDownStopBackspace *result = new keyWentDownStopBackspace("keydown", this);
       addEventSignal(*result);
       return *result;
@@ -241,7 +242,7 @@ class FakeDom: public WContainerWidget
 class AjaxConsoleApp: public WApplication
 {
   public:
-    AjaxConsoleApp(const WEnvironment &env): WApplication(env, new FakeDom())
+    AjaxConsoleApp(const WEnvironment &env) : WApplication(env, new FakeDom())
     {
       setTitle("Ajax Console");
       new AjaxConsoleOuter(root());
@@ -257,4 +258,3 @@ int main(int argc, char **argv)
 { 
   return WRun(argc, argv, &createApplication);
 }
-
