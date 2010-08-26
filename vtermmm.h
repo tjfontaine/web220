@@ -27,11 +27,17 @@ class VTermMM
     bool is_dirty;
     int fd;
     void process_in_out();
+    VTermRect invalid_region;
+    void invalidate(int, int, int, int);
+    void invalidate(VTermRect);
+    void invalidate(VTermPos);
 
   public:
     VTermMM(int rows=25, int columns=80);
+    void reset_invalid();
+    VTermRect getInvalid() { return invalid_region; }
     void setFD(int filedesc) { fd = filedesc; }
-    bool isDirty() { return is_dirty; }
+    bool isDirty();
     void feed(const std::string &, VTermModifier mod = VTERM_MOD_NONE);
     void feed(VTermKey k, VTermModifier mod = VTERM_MOD_NONE);
     bool process();

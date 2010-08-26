@@ -10,15 +10,55 @@ VTermMM::VTermMM(int rows, int columns) : is_dirty(false), fd(0)
     }
   }
 
-
+  reset_invalid();
+  invalidate(0, rows, 0, columns);
   _term = vterm_new(rows, columns);
   vterm_parser_set_utf8(_term, 1);
   VTermState *vts = vterm_obtain_state(_term);
   vterm_state_set_callbacks(vts, &vterm_callbacks, this);
 }
 
+void VTermMM::reset_invalid()
+{
+  invalid_region.start_row = -1;
+  invalid_region.end_row = -1;
+  invalid_region.start_col = -1;
+  invalid_region.end_col = -1;
+}
+
+void VTermMM::invalidate(int sr, int er, int sc, int ec)
+{
+  if(sr < invalid_region.start_row || invalid_region.start_row == -1)
+    invalid_region.start_row = sr;
+
+  if(er > invalid_region.end_row || invalid_region.end_row == -1)
+    invalid_region.end_row = er;
+
+  if(sc < invalid_region.start_col || invalid_region.start_col == -1)
+    invalid_region.start_col = sc;
+
+  if(ec > invalid_region.end_col || invalid_region.end_col == -1)
+    invalid_region.end_col = ec;
+}
+
+void VTermMM::invalidate(VTermRect r)
+{
+  invalidate(r.start_row, r.end_row, r.start_col, r.end_col);
+}
+
+void VTermMM::invalidate(VTermPos p)
+{
+  invalidate(p.row, p.row+1, p.col, p.col+1);
+}
+
+bool VTermMM::isDirty()
+{
+  return invalid_region.end_row - invalid_region.start_row >= 0 && invalid_region.end_col - invalid_region.start_col >= 0;
+}
+
 int VTermMM::putglyph(const uint32_t chars[], int width, VTermPos pos)
 {
+  invalidate(pos);
   std::string s((char *)chars);
   delete cells[pos.row][pos.col];
   cells[pos.row][pos.col] = new VTCell(s);
@@ -32,6 +72,7 @@ int VTermMM::movecursor(VTermPos pos, VTermPos oldpos, int visible)
 
 int VTermMM::copyrect(VTermRect dst, VTermRect src)
 {
+  invalidate(dst);
   for(int row=src.start_row; row<src.end_row; ++row)
   {
     int dst_row = dst.start_row + row - src.start_row;
@@ -47,6 +88,7 @@ int VTermMM::copyrect(VTermRect dst, VTermRect src)
 
 int VTermMM::copycell(VTermPos dest, VTermPos src)
 {
+  invalidate(dest);
   delete cells[dest.row][dest.col];
   VTCell c = *cells[src.row][src.col];
   cells[dest.row][dest.col] = new VTCell(cells[src.row][src.col]->value);;
@@ -55,6 +97,7 @@ int VTermMM::copycell(VTermPos dest, VTermPos src)
 
 int VTermMM::erase(VTermRect rect)
 {
+  invalidate(rect);
   for(int row=rect.start_row; row<rect.end_row; ++row)
   {
     for(int col=rect.start_col; col<rect.end_col; ++col)

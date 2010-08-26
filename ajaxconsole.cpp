@@ -39,7 +39,7 @@ class AjaxConsole : public WPaintedWidget
 AjaxConsole::AjaxConsole(WContainerWidget *parent) : WPaintedWidget(parent)
 {
   resize(800, 600);
-  update();
+  update(PaintUpdate);
   term_ = new VTermMM(25, 80);
   struct winsize size = {25, 80, 0, 0};
   int master;
@@ -69,7 +69,7 @@ void AjaxConsole::keyPressedEvent(const WKeyEvent &e)
   //  mod |= VTERM_MOD_ALT;
 
   term_->feed(e.text().toUTF8(), (VTermModifier)mod);
-  update();
+  update(PaintUpdate);
 }
 
 void AjaxConsole::keyWentUpEvent(const WKeyEvent &e)
@@ -134,7 +134,7 @@ void AjaxConsole::keyWentUpEvent(const WKeyEvent &e)
   if(k != VTERM_KEY_NONE)
   {
     term_->feed(k, (VTermModifier)mod);
-    update();
+    update(PaintUpdate);
   }
 }
 
@@ -144,21 +144,34 @@ void AjaxConsole::keyWentDownEvent(const WKeyEvent &e)
 
 void AjaxConsole::paintEvent(WPaintDevice *paintDevice)
 {
+  if(!term_->isDirty())
+    return;
+
   WPainter painter(paintDevice);
   WFont f;
   f.setFamily(WFont::Monospace);
   painter.setFont(f);
-  for(int row=0; row<25; ++row)
+
+  VTermRect rect = term_->getInvalid();
+
+  int col_width = rect.end_col-rect.start_col*8;
+  int row_width = rect.end_row-rect.start_row*12;
+  WRectF clear_rect = WRectF(rect.start_col*8, rect.start_row*12, col_width, row_width);
+  painter.fillRect(clear_rect, WBrush(WColor("white")));
+
+  for(int row=rect.start_row; row<rect.end_row; ++row)
   {
-    for(int col=0; col<80; ++col)
+    for(int col=rect.start_col; col<rect.end_col; ++col)
     {
       VTCell *c = term_->cells[row][col];
-      if(c != NULL && c->value != " ")
+      if(c != NULL)
       {
         painter.drawText((8.0*col)+4, 12.0*row, 0, 0, AlignCenter, c->value);
       }
     }
   }
+
+  term_->reset_invalid();
 }
 
 void AjaxConsole::process(WApplication *app)
@@ -168,7 +181,7 @@ void AjaxConsole::process(WApplication *app)
     if(term_->process())
     {
       Wt::WApplication::UpdateLock uiLock = app->getUpdateLock();
-      update();
+      update(PaintUpdate);
       app->triggerUpdate();
     }
   }
