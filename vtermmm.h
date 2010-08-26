@@ -7,6 +7,7 @@ extern "C" {
 }
 
 #include <iostream>
+#include <vector>
 
 static VTermColor VTERMMM_WHITE = { 255, 255, 255 };
 static VTermColor VTERMMM_BLACK = { 0, 0, 0 };
@@ -14,12 +15,23 @@ static VTermColor VTERMMM_BLACK = { 0, 0, 0 };
 class VTCell
 {
   public:
-    VTCell(const std::string &v, VTermColor f = VTERMMM_WHITE, VTermColor b = VTERMMM_BLACK)
+    VTCell(const std::string &v = " ", VTermColor f = VTERMMM_WHITE, VTermColor b = VTERMMM_BLACK)
+    {
+      set(v, f, b);
+    }
+
+    void set(const std::string &v, VTermColor f, VTermColor b)
     {
       value = v;
       fg_color = f;
       bg_color = b;
     }
+
+    void set(const VTCell &c)
+    {
+      set(c.value, c.fg_color, c.bg_color);
+    }
+
     VTermColor fg_color;  
     VTermColor bg_color;
     std::string value;
@@ -58,7 +70,8 @@ class VTermMM
     int setmousefunc(VTermMouseFunc, void *);
     int bell();
     int resize(int, int);
-    VTCell *cells[25][80];
+    typedef std::vector<VTCell> vrow; 
+    std::vector<vrow> cells;
 };
 
 int term_putglyph(const uint32_t chars[], int width, VTermPos pos, void *user);

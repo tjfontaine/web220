@@ -28,20 +28,20 @@ class AjaxConsole : public WPaintedWidget
     void process();
 
   public:
-    AjaxConsole(WContainerWidget *parent = 0);
+    AjaxConsole(int, int,WContainerWidget *parent = 0);
     void keyPressedEvent(const WKeyEvent &e);
-    void keyWentUpEvent(const WKeyEvent &e);
     void keyWentDownEvent(const WKeyEvent &e);
     void paintEvent(WPaintDevice *);
     void process(WApplication *);
 };
 
-AjaxConsole::AjaxConsole(WContainerWidget *parent) : WPaintedWidget(parent)
+AjaxConsole::AjaxConsole(int rows, int cols, WContainerWidget *parent)
+  : WPaintedWidget(parent)
 {
-  resize(800, 600);
+  resize(cols*10, rows*12);
   update(PaintUpdate);
-  term_ = new VTermMM(25, 80);
-  struct winsize size = {25, 80, 0, 0};
+  term_ = new VTermMM(rows, cols);
+  struct winsize size = {rows, cols, 0, 0};
   int master;
   char *args[] = {NULL};
 
@@ -72,7 +72,7 @@ void AjaxConsole::keyPressedEvent(const WKeyEvent &e)
   update(PaintUpdate);
 }
 
-void AjaxConsole::keyWentUpEvent(const WKeyEvent &e)
+void AjaxConsole::keyWentDownEvent(const WKeyEvent &e)
 {
   int mod = VTERM_MOD_NONE;
   KeyboardModifier wtmod = e.modifiers();
@@ -138,10 +138,6 @@ void AjaxConsole::keyWentUpEvent(const WKeyEvent &e)
   }
 }
 
-void AjaxConsole::keyWentDownEvent(const WKeyEvent &e)
-{
-}
-
 static const WColor toWColor(VTermColor c)
 {
   return WColor(c.red, c.green, c.blue);
@@ -171,16 +167,13 @@ void AjaxConsole::paintEvent(WPaintDevice *paintDevice)
   {
     for(int col=rect.start_col; col<rect.end_col; ++col)
     {
-      VTCell *c = term_->cells[row][col];
-      if(c != NULL)
+      VTCell c = term_->cells[row][col];
+      WRectF r(8*col, 12*row, 10, 13);
+      painter.fillRect(r, WBrush(toWColor(c.bg_color)));
+      if(c.value != " ")
       {
-        WRectF r(8*col, 12*row, 10, 13);
-        painter.fillRect(r, WBrush(toWColor(c->bg_color)));
-        if(c->value != " ")
-        {
-          painter.setPen(WPen(toWColor(c->fg_color)));
-          painter.drawText((8.0*col)+4, 12.0*row, 0, 0, AlignCenter, c->value);
-        }
+        painter.setPen(WPen(toWColor(c.fg_color)));
+        painter.drawText((8.0*col)+4, 12.0*row, 0, 0, AlignCenter, c.value);
       }
     }
   }
@@ -207,16 +200,16 @@ class AjaxConsoleOuter : public WContainerWidget
     AjaxConsole *console;
     WApplication *app;
     boost::thread processor;
-    Wt::JSlot keyWentUp_;
+    //Wt::JSlot keyWentUp_;
 
   public:
     AjaxConsoleOuter(WContainerWidget *root) : WContainerWidget(root),
       app(WApplication::instance())
     {
-      console = new AjaxConsole(this);
-      EventSignal<WKeyEvent> &s = app->globalKeyWentUp();
+      console = new AjaxConsole(25, 80, this);
+      //EventSignal<WKeyEvent> &s = app->globalKeyWentUp();
       //s.preventPropagation();
-      s.connect(console, &AjaxConsole::keyWentUpEvent);
+      //s.connect(console, &AjaxConsole::keyWentUpEvent);
 
       EventSignal<WKeyEvent> &s1 = app->globalKeyWentDown();
       //s1.preventPropagation();

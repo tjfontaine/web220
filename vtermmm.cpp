@@ -3,16 +3,9 @@
 VTermMM::VTermMM(int rows, int columns)
   : fd(0),
     foreground(VTERMMM_WHITE),
-    background(VTERMMM_BLACK)
+    background(VTERMMM_BLACK),
+    cells(rows, vrow(columns))
 {
-  for(int y=0; y < rows; ++y)
-  {
-    for(int x=0; x < columns; ++x)
-    {
-      cells[y][x] = new VTCell(" ");
-    }
-  }
-
   reset_invalid();
   invalidate(0, rows, 0, columns);
   _term = vterm_new(rows, columns);
@@ -63,8 +56,7 @@ int VTermMM::putglyph(const uint32_t chars[], int width, VTermPos pos)
 {
   invalidate(pos);
   std::string s((char *)chars);
-  delete cells[pos.row][pos.col];
-  cells[pos.row][pos.col] = new VTCell(s, foreground, background);
+  cells[pos.row][pos.col].set(s, foreground, background);
   return 1;
 }
 
@@ -82,9 +74,7 @@ int VTermMM::copyrect(VTermRect dst, VTermRect src)
     for(int col=src.start_col; col<src.end_col; ++col)
     {
       int dst_col = dst.start_col + col - src.start_col;
-      delete cells[dst_row][dst_col];
-      VTCell *c = cells[row][col];
-      cells[dst_row][dst_col] = new VTCell(c->value, c->fg_color, c->bg_color);
+      cells[dst_row][dst_col].set(cells[row][col]);
     }
   }
   return 1;
@@ -93,9 +83,7 @@ int VTermMM::copyrect(VTermRect dst, VTermRect src)
 int VTermMM::copycell(VTermPos dest, VTermPos src)
 {
   invalidate(dest);
-  delete cells[dest.row][dest.col];
-  VTCell *c = cells[src.row][src.col];
-  cells[dest.row][dest.col] = new VTCell(c->value, c->fg_color, c->bg_color);
+  cells[dest.row][dest.col].set(cells[src.row][src.col]);
   return 1;
 }
 
@@ -106,8 +94,7 @@ int VTermMM::erase(VTermRect rect)
   {
     for(int col=rect.start_col; col<rect.end_col; ++col)
     {
-      delete cells[row][col];
-      cells[row][col] = new VTCell(" ", foreground, background);
+      cells[row][col].set(" ", foreground, background);
     }
   } 
   return 1;
