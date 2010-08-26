@@ -167,7 +167,7 @@ void AjaxConsole::paintEvent(WPaintDevice *paintDevice)
     for(int col=rect.start_col; col<rect.end_col; ++col)
     {
       VTCell *c = term_->cells[row][col];
-      if(c != NULL)
+      if(c != NULL && c->value != " ")
       {
         painter.drawText((8.0*col)+4, 12.0*row, 0, 0, AlignCenter, c->value);
       }
