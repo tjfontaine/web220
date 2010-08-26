@@ -8,12 +8,17 @@ extern "C" {
 
 #include <iostream>
 
+static VTermColor VTERMMM_WHITE = { 255, 255, 255 };
+static VTermColor VTERMMM_BLACK = { 0, 0, 0 };
+
 class VTCell
 {
   public:
-    VTCell(const std::string &v)
+    VTCell(const std::string &v, VTermColor f = VTERMMM_WHITE, VTermColor b = VTERMMM_BLACK)
     {
       value = v;
+      fg_color = f;
+      bg_color = b;
     }
     VTermColor fg_color;  
     VTermColor bg_color;
@@ -24,13 +29,14 @@ class VTermMM
 {
   private:
     VTerm *_term;
-    bool is_dirty;
     int fd;
     void process_in_out();
     VTermRect invalid_region;
     void invalidate(int, int, int, int);
     void invalidate(VTermRect);
     void invalidate(VTermPos);
+    VTermColor foreground;
+    VTermColor background;
 
   public:
     VTermMM(int rows=25, int columns=80);

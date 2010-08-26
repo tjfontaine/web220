@@ -1,6 +1,9 @@
 #include "vtermmm.h"
 
-VTermMM::VTermMM(int rows, int columns) : is_dirty(false), fd(0)
+VTermMM::VTermMM(int rows, int columns)
+  : fd(0),
+    foreground(VTERMMM_WHITE),
+    background(VTERMMM_BLACK)
 {
   for(int y=0; y < rows; ++y)
   {
@@ -61,7 +64,7 @@ int VTermMM::putglyph(const uint32_t chars[], int width, VTermPos pos)
   invalidate(pos);
   std::string s((char *)chars);
   delete cells[pos.row][pos.col];
-  cells[pos.row][pos.col] = new VTCell(s);
+  cells[pos.row][pos.col] = new VTCell(s, foreground, background);
   return 1;
 }
 
@@ -80,7 +83,8 @@ int VTermMM::copyrect(VTermRect dst, VTermRect src)
     {
       int dst_col = dst.start_col + col - src.start_col;
       delete cells[dst_row][dst_col];
-      cells[dst_row][dst_col] = new VTCell(cells[row][col]->value);
+      VTCell *c = cells[row][col];
+      cells[dst_row][dst_col] = new VTCell(c->value, c->fg_color, c->bg_color);
     }
   }
   return 1;
@@ -90,8 +94,8 @@ int VTermMM::copycell(VTermPos dest, VTermPos src)
 {
   invalidate(dest);
   delete cells[dest.row][dest.col];
-  VTCell c = *cells[src.row][src.col];
-  cells[dest.row][dest.col] = new VTCell(cells[src.row][src.col]->value);;
+  VTCell *c = cells[src.row][src.col];
+  cells[dest.row][dest.col] = new VTCell(c->value, c->fg_color, c->bg_color);
   return 1;
 }
 
@@ -103,7 +107,7 @@ int VTermMM::erase(VTermRect rect)
     for(int col=rect.start_col; col<rect.end_col; ++col)
     {
       delete cells[row][col];
-      cells[row][col] = new VTCell(" ");
+      cells[row][col] = new VTCell(" ", foreground, background);
     }
   } 
   return 1;
@@ -111,11 +115,23 @@ int VTermMM::erase(VTermRect rect)
 
 int VTermMM::initpen()
 {
+  std::cerr << "Init Pen" << std::endl;
+  foreground = VTERMMM_WHITE;
+  background = VTERMMM_BLACK;
   return 1;
 }
 
 int VTermMM::setpenattr(VTermAttr attr, VTermValue *val)
 {
+  switch(attr)
+  {
+    case VTERM_ATTR_FOREGROUND:
+      foreground = val->color;
+      break;
+    case VTERM_ATTR_BACKGROUND:
+      background = val->color;
+      break;
+  }
   return 1;
 }
 

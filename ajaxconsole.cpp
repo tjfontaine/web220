@@ -142,6 +142,11 @@ void AjaxConsole::keyWentDownEvent(const WKeyEvent &e)
 {
 }
 
+static const WColor toWColor(VTermColor c)
+{
+  return WColor(c.red, c.green, c.blue);
+}
+
 void AjaxConsole::paintEvent(WPaintDevice *paintDevice)
 {
   if(!term_->isDirty())
@@ -158,7 +163,7 @@ void AjaxConsole::paintEvent(WPaintDevice *paintDevice)
   int row_width = (rect.end_row-rect.start_row)*12;
   WRectF clear_rect = WRectF(rect.start_col*8, rect.start_row*12, col_width, row_width);
 
-  painter.fillRect(clear_rect, WBrush(WColor("white")));
+  painter.fillRect(clear_rect, WBrush(toWColor(VTERMMM_BLACK)));
   /* Enable to see update regions */
   /*painter.drawRect(clear_rect); */
 
@@ -167,9 +172,15 @@ void AjaxConsole::paintEvent(WPaintDevice *paintDevice)
     for(int col=rect.start_col; col<rect.end_col; ++col)
     {
       VTCell *c = term_->cells[row][col];
-      if(c != NULL && c->value != " ")
+      if(c != NULL)
       {
-        painter.drawText((8.0*col)+4, 12.0*row, 0, 0, AlignCenter, c->value);
+        WRectF r(8*col, 12*row, 10, 13);
+        painter.fillRect(r, WBrush(toWColor(c->bg_color)));
+        if(c->value != " ")
+        {
+          painter.setPen(WPen(toWColor(c->fg_color)));
+          painter.drawText((8.0*col)+4, 12.0*row, 0, 0, AlignCenter, c->value);
+        }
       }
     }
   }
