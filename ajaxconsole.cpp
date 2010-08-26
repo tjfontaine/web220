@@ -154,10 +154,13 @@ void AjaxConsole::paintEvent(WPaintDevice *paintDevice)
 
   VTermRect rect = term_->getInvalid();
 
-  int col_width = rect.end_col-rect.start_col*8;
-  int row_width = rect.end_row-rect.start_row*12;
+  int col_width = (rect.end_col-rect.start_col)*8;
+  int row_width = (rect.end_row-rect.start_row)*12;
   WRectF clear_rect = WRectF(rect.start_col*8, rect.start_row*12, col_width, row_width);
+
   painter.fillRect(clear_rect, WBrush(WColor("white")));
+  /* Enable to see update regions */
+  /*painter.drawRect(clear_rect); */
 
   for(int row=rect.start_row; row<rect.end_row; ++row)
   {
