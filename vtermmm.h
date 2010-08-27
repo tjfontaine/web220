@@ -70,7 +70,7 @@ class VTermMM
     int setmousefunc(VTermMouseFunc, void *);
     int bell();
     int resize(int, int);
-    typedef std::vector<VTCell> vrow; 
+    typedef std::vector<VTCell> vrow;
     std::vector<vrow> cells;
 };
 

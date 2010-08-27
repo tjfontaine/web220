@@ -231,7 +231,7 @@ class keyWentDownStopBackspace : public EventSignal<WKeyEvent>
     keyWentDownStopBackspace(const char *name, WContainerWidget *wcw) : EventSignal<WKeyEvent>(name, wcw)
     {
     }
-  
+
     const std::string javaScript() const
     {
       std::string result = EventSignal<WKeyEvent>::javaScript();
@@ -270,11 +270,11 @@ class AjaxConsoleApp: public WApplication
 };
 
 WApplication *createApplication(const WEnvironment& env)
-{ 
+{
   return new AjaxConsoleApp(env);
 }
 
 int main(int argc, char **argv)
-{ 
+{
   return WRun(argc, argv, &createApplication);
 }
