@@ -8,6 +8,8 @@ VTermMM::VTermMM(int rows, int columns)
     cells(rows, vrow(columns)),
     reverse(false)
 {
+  cursor.row = 0;
+  cursor.col = 0;
   reset_invalid();
   invalidate(0, rows, 0, columns);
   _term = vterm_new(rows, columns);
