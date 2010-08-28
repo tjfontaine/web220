@@ -15,26 +15,29 @@ static VTermColor VTERMMM_BLACK = { 0, 0, 0 };
 class VTCell
 {
   public:
-    VTCell(const std::string &v = " ", VTermColor f = VTERMMM_WHITE, VTermColor b = VTERMMM_BLACK)
+    VTCell(const std::string &v = " ", VTermColor f = VTERMMM_WHITE, VTermColor b = VTERMMM_BLACK) :
+      bold(false)
     {
       set(v, f, b);
     }
 
-    void set(const std::string &v, VTermColor f, VTermColor b)
+    void set(const std::string &v, VTermColor f, VTermColor b, bool bld = false)
     {
       value = v;
       fg_color = f;
       bg_color = b;
+      bold = bld;
     }
 
     void set(const VTCell &c)
     {
-      set(c.value, c.fg_color, c.bg_color);
+      set(c.value, c.fg_color, c.bg_color, c.bold);
     }
 
     VTermColor fg_color;  
     VTermColor bg_color;
     std::string value;
+    bool bold;
 };
 
 class VTermMM
@@ -50,6 +53,7 @@ class VTermMM
     VTermColor foreground;
     VTermColor background;
     bool reverse;
+    bool bold;
 
   public:
     VTermMM(int rows=25, int columns=80);

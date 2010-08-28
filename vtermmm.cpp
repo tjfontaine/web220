@@ -109,7 +109,7 @@ int VTermMM::putglyph(const uint32_t chars[], int width, VTermPos pos)
     b = foreground;
   }
 
-  cells[pos.row][pos.col].set(s, f, b);
+  cells[pos.row][pos.col].set(s, f, b, bold);
   return 1;
 }
 
@@ -173,6 +173,7 @@ int VTermMM::initpen()
 
 int VTermMM::setpenattr(VTermAttr attr, VTermValue *val)
 {
+  int ret = 1;
   switch(attr)
   {
     case VTERM_ATTR_FOREGROUND:
@@ -184,12 +185,19 @@ int VTermMM::setpenattr(VTermAttr attr, VTermValue *val)
     case VTERM_ATTR_REVERSE:
       reverse = val->boolean;
       break;
+    case VTERM_ATTR_BOLD:
+      bold = val->boolean;
+      break;
+    default:
+      ret = 0;
+      break;
   }
-  return 1;
+  return ret;
 }
 
 int VTermMM::settermprop(VTermProp prop, VTermValue *val)
 {
+  int ret = 1;
   switch(prop)
   {
     case VTERM_PROP_ALTSCREEN:
@@ -198,23 +206,26 @@ int VTermMM::settermprop(VTermProp prop, VTermValue *val)
     case VTERM_PROP_CURSORVISIBLE:
       cursor_visible = val->boolean;
       break;
+    default:
+      ret = 0;
+      break;
   }
-  return 1;
+  return ret;
 }
 
 int VTermMM::setmousefunc(VTermMouseFunc func, void *data)
 {
-  return 1;
+  return 0;
 }
 
 int VTermMM::bell()
 {
-  return 1;
+  return 0;
 }
 
 int VTermMM::resize(int rows, int columns)
 {
-  return 1;
+  return 0;
 }
 
 void VTermMM::process_in_out()

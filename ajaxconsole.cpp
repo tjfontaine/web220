@@ -198,7 +198,7 @@ void AjaxConsole::paintEvent(WPaintDevice *paintDevice)
   WPainter painter(paintDevice);
   WFont f;
   f.setFamily(WFont::Monospace);
-  painter.setFont(f);
+  //painter.setFont(f);
 
   VTermRect rect = term_->getInvalid();
 
@@ -231,6 +231,15 @@ void AjaxConsole::paintEvent(WPaintDevice *paintDevice)
       if(c.value != " ")
       {
         painter.setPen(WPen(toWColor(c.fg_color)));
+        if(c.bold)
+        {
+          f.setWeight(WFont::Bolder);
+        }
+        else
+        {
+          f.setWeight(WFont::NormalWeight);
+        }
+        painter.setFont(f);
         painter.drawText((COL_SIZE*(col+1)), (ROW_SIZE*(row+1)), 0, 0, AlignRight|AlignBottom, c.value);
       }
     }
