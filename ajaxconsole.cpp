@@ -21,7 +21,7 @@
 
 using namespace Wt;
 
-static int COL_SIZE = 10;
+static int COL_SIZE = 8;
 static int ROW_SIZE = 14;
 
 #define WEB220_DEBUG_DRAW 0
@@ -234,6 +234,13 @@ void AjaxConsole::paintEvent(WPaintDevice *paintDevice)
         painter.drawText((COL_SIZE*(col+1)), (ROW_SIZE*(row+1)), 0, 0, AlignRight|AlignBottom, c.value);
       }
     }
+  }
+
+  if(term_->cursor_visible)
+  {
+    WRectF r(COL_SIZE*term_->cursor.col, ROW_SIZE*term_->cursor.row, COL_SIZE, ROW_SIZE);
+    painter.setPen(WPen(WColor("white")));
+    painter.fillRect(r, WBrush(WColor("white")));
   }
 
   term_->reset_invalid();

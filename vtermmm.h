@@ -49,6 +49,7 @@ class VTermMM
     void invalidate(VTermPos);
     VTermColor foreground;
     VTermColor background;
+    bool reverse;
 
   public:
     VTermMM(int rows=25, int columns=80);
@@ -73,6 +74,8 @@ class VTermMM
     int resize(int, int);
     typedef std::vector<VTCell> vrow;
     std::vector<vrow> cells;
+    bool cursor_visible;
+    VTermPos cursor;
 };
 
 int term_putglyph(const uint32_t chars[], int width, VTermPos pos, void *user);

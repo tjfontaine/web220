@@ -5,7 +5,8 @@ VTermMM::VTermMM(int rows, int columns)
   : fd(0),
     foreground(VTERMMM_WHITE),
     background(VTERMMM_BLACK),
-    cells(rows, vrow(columns))
+    cells(rows, vrow(columns)),
+    reverse(false)
 {
   reset_invalid();
   invalidate(0, rows, 0, columns);
@@ -99,12 +100,23 @@ int VTermMM::putglyph(const uint32_t chars[], int width, VTermPos pos)
 {
   invalidate(pos);
   std::string s((char *)chars);
-  cells[pos.row][pos.col].set(s, foreground, background);
+  VTermColor f = foreground;
+  VTermColor b = background;
+
+  if(reverse)
+  {
+    f = background;
+    b = foreground;
+  }
+
+  cells[pos.row][pos.col].set(s, f, b);
   return 1;
 }
 
 int VTermMM::movecursor(VTermPos pos, VTermPos oldpos, int visible)
 {
+  cursor = pos;
+  cursor_visible = visible;
   return 1;
 }
 
@@ -133,11 +145,20 @@ int VTermMM::copycell(VTermPos dest, VTermPos src)
 int VTermMM::erase(VTermRect rect)
 {
   invalidate(rect);
+  VTermColor f = foreground;
+  VTermColor b = background;
+
+  if(reverse)
+  {
+    f = background;
+    b = foreground;
+  }
+
   for(int row=rect.start_row; row<rect.end_row; ++row)
   {
     for(int col=rect.start_col; col<rect.end_col; ++col)
     {
-      cells[row][col].set(" ", foreground, background);
+      cells[row][col].set(" ", f, b);
     }
   } 
   return 1;
@@ -160,6 +181,9 @@ int VTermMM::setpenattr(VTermAttr attr, VTermValue *val)
     case VTERM_ATTR_BACKGROUND:
       background = val->color;
       break;
+    case VTERM_ATTR_REVERSE:
+      reverse = val->boolean;
+      break;
   }
   return 1;
 }
@@ -170,6 +194,9 @@ int VTermMM::settermprop(VTermProp prop, VTermValue *val)
   {
     case VTERM_PROP_ALTSCREEN:
       return 0;
+      break;
+    case VTERM_PROP_CURSORVISIBLE:
+      cursor_visible = val->boolean;
       break;
   }
   return 1;
