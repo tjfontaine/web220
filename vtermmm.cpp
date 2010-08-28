@@ -129,7 +129,7 @@ int VTermMM::copyrect(VTermRect dst, VTermRect src)
     for(int col=src.start_col; col<src.end_col; ++col)
     {
       int dst_col = dst.start_col + col - src.start_col;
-      cells[dst_row][dst_col].set(cells[row][col]);
+      cells[dst_row][dst_col] = cells[row][col];
     }
   }
   return 1;
@@ -138,7 +138,7 @@ int VTermMM::copyrect(VTermRect dst, VTermRect src)
 int VTermMM::copycell(VTermPos dest, VTermPos src)
 {
   invalidate(dest);
-  cells[dest.row][dest.col].set(cells[src.row][src.col]);
+  cells[dest.row][dest.col] = cells[src.row][src.col];
   return 1;
 }
 

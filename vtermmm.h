@@ -22,6 +22,15 @@ class VTCell
       set(v, f, b);
     }
 
+    VTCell(const VTCell& c)
+    {
+      value = c.value;
+      fg_color = c.fg_color;
+      bg_color = c.bg_color;
+      bold = c.bold;
+      italic = c.italic;
+    }
+
     void set(const std::string &v, VTermColor f, VTermColor b, bool bld = false, bool itlc = false)
     {
       value = v;
@@ -29,11 +38,6 @@ class VTCell
       bg_color = b;
       bold = bld;
       italic = itlc;
-    }
-
-    void set(const VTCell &c)
-    {
-      set(c.value, c.fg_color, c.bg_color, c.bold, c.italic);
     }
 
     VTermColor fg_color;  
