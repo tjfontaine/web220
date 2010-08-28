@@ -1,4 +1,5 @@
 #include "vtermmm.h"
+#include <algorithm>
 
 VTermMM::VTermMM(int rows, int columns)
   : fd(0),
@@ -22,19 +23,61 @@ void VTermMM::reset_invalid()
   invalid_region.end_col = -1;
 }
 
+VTermRect VTermMM::getInvalid()
+{
+  VTermRect ir = invalid_region;
+  int max_row = 0;
+  int max_col = 0;
+  vterm_get_size(_term, &max_row, &max_col);
+  ir.start_row = std::max(ir.start_row, 0);
+  ir.start_col = std::max(ir.start_col, 0);
+  ir.end_row = std::min(ir.end_row, max_row);
+  ir.end_col = std::min(ir.end_col, max_col);
+  return ir;
+}
+
 void VTermMM::invalidate(int sr, int er, int sc, int ec)
 {
-  if(sr < invalid_region.start_row || invalid_region.start_row == -1)
+  sr = std::max(sr, 0);
+  er = std::max(er, 0);
+  sc = std::max(sc, 0);
+  ec = std::max(ec, 0);
+
+  if(invalid_region.start_row == -1)
+  {
     invalid_region.start_row = sr;
+  }
+  else
+  {
+    invalid_region.start_row = std::min(sr, invalid_region.start_row);
+  }
 
-  if(er > invalid_region.end_row || invalid_region.end_row == -1)
+  if(invalid_region.end_row == -1)
+  {
     invalid_region.end_row = er;
+  }
+  else
+  {
+    invalid_region.end_row = std::max(er, invalid_region.end_row);
+  }
 
-  if(sc < invalid_region.start_col || invalid_region.start_col == -1)
+  if(invalid_region.start_col == -1)
+  {
     invalid_region.start_col = sc;
+  }
+  else
+  {
+    invalid_region.start_col = std::min(sc, invalid_region.start_col);
+  }
 
-  if(ec > invalid_region.end_col || invalid_region.end_col == -1)
+  if(invalid_region.end_col == -1)
+  {
     invalid_region.end_col = ec;
+  }
+  else
+  {
+    invalid_region.end_col = std::max(ec, invalid_region.end_col);
+  }
 }
 
 void VTermMM::invalidate(VTermRect r)
@@ -49,7 +92,7 @@ void VTermMM::invalidate(VTermPos p)
 
 bool VTermMM::isDirty()
 {
-  return invalid_region.end_row - invalid_region.start_row >= 0 && invalid_region.end_col - invalid_region.start_col >= 0;
+  return invalid_region.end_row != -1 && invalid_region.start_row != -1 && invalid_region.end_col != -1 && invalid_region.start_col != -1;
 }
 
 int VTermMM::putglyph(const uint32_t chars[], int width, VTermPos pos)
@@ -102,7 +145,6 @@ int VTermMM::erase(VTermRect rect)
 
 int VTermMM::initpen()
 {
-  std::cerr << "Init Pen" << std::endl;
   foreground = VTERMMM_WHITE;
   background = VTERMMM_BLACK;
   return 1;

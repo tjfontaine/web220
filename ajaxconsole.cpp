@@ -21,6 +21,11 @@
 
 using namespace Wt;
 
+static int COL_SIZE = 10;
+static int ROW_SIZE = 14;
+
+#define WEB220_DEBUG_DRAW 0
+
 class AjaxConsole : public WPaintedWidget
 {
   private:
@@ -38,7 +43,7 @@ class AjaxConsole : public WPaintedWidget
 AjaxConsole::AjaxConsole(int rows, int cols, WContainerWidget *parent)
   : WPaintedWidget(parent)
 {
-  resize(cols*10, rows*12);
+  resize((cols+1)*COL_SIZE, (rows+1)*ROW_SIZE);
   update(PaintUpdate);
   term_ = new VTermMM(rows, cols);
   struct winsize size = {rows, cols, 0, 0};
@@ -155,25 +160,36 @@ void AjaxConsole::paintEvent(WPaintDevice *paintDevice)
 
   VTermRect rect = term_->getInvalid();
 
-  int col_width = (rect.end_col-rect.start_col)*8;
-  int row_width = (rect.end_row-rect.start_row)*12;
-  WRectF clear_rect = WRectF(rect.start_col*8, rect.start_row*12, col_width, row_width);
-
+  int col_width = (rect.end_col-rect.start_col)*COL_SIZE;
+  int row_width = (rect.end_row-rect.start_row)*ROW_SIZE;
+  WRectF clear_rect = WRectF(rect.start_col*COL_SIZE, rect.start_row*ROW_SIZE, col_width, row_width);
   painter.fillRect(clear_rect, WBrush(toWColor(VTERMMM_BLACK)));
-  /* Enable to see update regions */
-  /*painter.drawRect(clear_rect); */
+
+  #if WEB220_DEBUG_DRAW
+  std::cerr << "IR: " << rect.start_row << "," << rect.end_row << "," << rect.start_col << "," << rect.end_col << std::endl;
+  std::cerr << "CR: " << clear_rect.x() << "," << clear_rect.y() << "," << clear_rect.width() << "," << clear_rect.height() << std::endl;
+  painter.setPen(WPen(WColor("White")));
+  painter.drawRect(clear_rect);
+  #endif
 
   for(int row=rect.start_row; row<rect.end_row; ++row)
   {
     for(int col=rect.start_col; col<rect.end_col; ++col)
     {
       VTCell c = term_->cells[row][col];
-      WRectF r(8*col, 12*row, 10, 13);
+      WRectF r(COL_SIZE*(col), ROW_SIZE*(row), COL_SIZE, ROW_SIZE);
+
+      #if WEB220_DEBUG_DRAW
+      std::cerr << "R: ["<< row << "," << col << "] " << r.x() << "," << r.y() << "," << r.width() << "," << r.height() << std::endl;
+      painter.setPen(WPen(WColor("blue")));
+      painter.drawRect(r);
+      #endif
+
       painter.fillRect(r, WBrush(toWColor(c.bg_color)));
       if(c.value != " ")
       {
         painter.setPen(WPen(toWColor(c.fg_color)));
-        painter.drawText((8.0*col)+4, 12.0*row, 0, 0, AlignCenter, c.value);
+        painter.drawText((COL_SIZE*(col+1)), (ROW_SIZE*(row+1)), 0, 0, AlignRight|AlignBottom, c.value);
       }
     }
   }
