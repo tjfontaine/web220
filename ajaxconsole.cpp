@@ -231,6 +231,7 @@ void AjaxConsole::paintEvent(WPaintDevice *paintDevice)
       if(c.value != " ")
       {
         painter.setPen(WPen(toWColor(c.fg_color)));
+
         if(c.bold)
         {
           f.setWeight(WFont::Bolder);
@@ -239,6 +240,16 @@ void AjaxConsole::paintEvent(WPaintDevice *paintDevice)
         {
           f.setWeight(WFont::NormalWeight);
         }
+
+        if(c.italic)
+        {
+          f.setStyle(WFont::Italic);
+        }
+        else
+        {
+          f.setStyle(WFont::NormalStyle);
+        }
+
         painter.setFont(f);
         painter.drawText((COL_SIZE*(col+1)), (ROW_SIZE*(row+1)), 0, 0, AlignRight|AlignBottom, c.value);
       }

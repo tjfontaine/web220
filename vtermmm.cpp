@@ -109,7 +109,7 @@ int VTermMM::putglyph(const uint32_t chars[], int width, VTermPos pos)
     b = foreground;
   }
 
-  cells[pos.row][pos.col].set(s, f, b, bold);
+  cells[pos.row][pos.col].set(s, f, b, bold, italic);
   return 1;
 }
 
@@ -187,6 +187,9 @@ int VTermMM::setpenattr(VTermAttr attr, VTermValue *val)
       break;
     case VTERM_ATTR_BOLD:
       bold = val->boolean;
+      break;
+    case VTERM_ATTR_ITALIC:
+      italic = val->boolean;
       break;
     default:
       ret = 0;
