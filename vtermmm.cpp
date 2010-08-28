@@ -166,6 +166,12 @@ int VTermMM::setpenattr(VTermAttr attr, VTermValue *val)
 
 int VTermMM::settermprop(VTermProp prop, VTermValue *val)
 {
+  switch(prop)
+  {
+    case VTERM_PROP_ALTSCREEN:
+      return 0;
+      break;
+  }
   return 1;
 }
 
@@ -205,6 +211,12 @@ void VTermMM::feed(VTermKey k, VTermModifier mod)
 {
   vterm_input_push_key(_term, mod, k);
   process_in_out();
+}
+
+void VTermMM::feed(char c, VTermModifier mod)
+{
+  char key[] = { c, NULL };
+  feed(key, mod);
 }
 
 bool VTermMM::process()

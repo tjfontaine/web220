@@ -58,6 +58,7 @@ class VTermMM
     bool isDirty();
     void feed(const std::string &, VTermModifier mod = VTERM_MOD_NONE);
     void feed(VTermKey k, VTermModifier mod = VTERM_MOD_NONE);
+    void feed(char c, VTermModifier mod = VTERM_MOD_NONE);
     bool process();
     int putglyph(const uint32_t[], int, VTermPos);
     int movecursor(VTermPos pos, VTermPos oldpos, int visible);

@@ -59,39 +59,43 @@ AjaxConsole::AjaxConsole(int rows, int cols, WContainerWidget *parent)
   term_->setFD(master);
 }
 
-void AjaxConsole::keyPressedEvent(const WKeyEvent &e)
+VTermModifier toVTermModifier(KeyboardModifier wtmod)
 {
   int mod = VTERM_MOD_NONE;
-  KeyboardModifier wtmod = e.modifiers();
 
   if((wtmod & ShiftModifier) != 0)
+  {
     mod |= VTERM_MOD_SHIFT;
+  }
+
   if((wtmod & ControlModifier) != 0)
+  {
     mod |= VTERM_MOD_CTRL;
+  }
+
   if((wtmod & AltModifier) != 0)
+  {
     mod |= VTERM_MOD_ALT;
+  }
+
   //if(wtmod & MetaModifier)
   //  mod |= VTERM_MOD_ALT;
 
+  return (VTermModifier)mod;
+}
+
+void AjaxConsole::keyPressedEvent(const WKeyEvent &e)
+{
+  VTermModifier mod = toVTermModifier(e.modifiers());
   term_->feed(e.text().toUTF8(), (VTermModifier)mod);
   update(PaintUpdate);
 }
 
 void AjaxConsole::keyWentDownEvent(const WKeyEvent &e)
 {
-  int mod = VTERM_MOD_NONE;
-  KeyboardModifier wtmod = e.modifiers();
-
-  if((wtmod & ShiftModifier) != 0)
-    mod |= VTERM_MOD_SHIFT;
-  if((wtmod & ControlModifier) != 0)
-    mod |= VTERM_MOD_CTRL;
-  if((wtmod & AltModifier) != 0)
-    mod |= VTERM_MOD_ALT;
-  //if(wtmod & MetaModifier)
-  //  mod |= VTERM_MOD_ALT;
-
+  VTermModifier mod = toVTermModifier(e.modifiers());
   VTermKey k = VTERM_KEY_NONE;
+  char c = '\0';
 
   switch(e.key())
   {
@@ -134,11 +138,49 @@ void AjaxConsole::keyWentDownEvent(const WKeyEvent &e)
     case Key_Delete:
       k = VTERM_KEY_DEL;
       break;
+    case Key_A:
+    case Key_B:
+    case Key_C:
+    case Key_D:
+    case Key_E:
+    case Key_F:
+    case Key_G:
+    case Key_H:
+    case Key_I:
+    case Key_J:
+    case Key_K:
+    case Key_L:
+    case Key_M:
+    case Key_N:
+    case Key_O:
+    case Key_P:
+    case Key_Q:
+    case Key_R:
+    case Key_S:
+    case Key_T:
+    case Key_U:
+    case Key_V:
+    case Key_W:
+    case Key_X:
+    case Key_Y:
+    case Key_Z:
+      if(mod == VTERM_MOD_CTRL)
+      {
+        c = (char)e.key()-64;
+        mod = VTERM_MOD_NONE;
+      }
+      break;
   }
 
   if(k != VTERM_KEY_NONE)
   {
     term_->feed(k, (VTermModifier)mod);
+    update(PaintUpdate);
+  }
+  else if(c != '\0')
+  {
+    std::cerr << "Sending " << int(c) << " Mod: " << mod << std::endl;
+    term_->feed(c, (VTermModifier)mod);
     update(PaintUpdate);
   }
 }
