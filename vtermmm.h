@@ -7,6 +7,7 @@ extern "C" {
 }
 
 #include <iostream>
+#include <map>
 #include <vector>
 
 #include "vtcell.h"
@@ -14,6 +15,9 @@ extern "C" {
 static VTermColor VTERMMM_WHITE = { 255, 255, 255 };
 static VTermColor VTERMMM_BLACK = { 0, 0, 0 };
 
+typedef std::map<std::string, VTCell*> InvalidRegion;
+typedef InvalidRegion::iterator InvalidRegionIter;
+typedef std::pair<std::string, VTCell*> InvalidRegionPair;
 
 class VTermMM
 {
@@ -29,15 +33,15 @@ class VTermMM
     bool reverse;
     bool bold;
     bool italic;
-    std::vector<VTCell*> invalid_region;
+    InvalidRegion invalid_region;
     typedef std::vector<VTCell> vrow;
     std::vector<vrow> cells;
 
   public:
     VTermMM(int rows=25, int columns=80);
     void reset_invalid();
-    std::vector<VTCell*>::iterator GetInvalidBegin();
-    std::vector<VTCell*>::iterator GetInvalidEnd();
+    InvalidRegionIter GetInvalidBegin();
+    InvalidRegionIter GetInvalidEnd();
     void setFD(int filedesc) { fd = filedesc; }
     void feed(const std::string &, VTermModifier mod = VTERM_MOD_NONE);
     void feed(VTermKey k, VTermModifier mod = VTERM_MOD_NONE);

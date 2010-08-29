@@ -196,12 +196,12 @@ void AjaxConsole::paintEvent(WPaintDevice *paintDevice)
   WFont f;
   f.setFamily(WFont::Monospace);
 
-  std::vector<VTCell*>::iterator it = term_->GetInvalidBegin();
-  std::vector<VTCell*>::iterator end = term_->GetInvalidEnd();
+  InvalidRegionIter it = term_->GetInvalidBegin();
+  InvalidRegionIter end = term_->GetInvalidEnd();
 
   for(; it != end; ++it)
   {
-    VTCell *c = *it;
+    VTCell *c = (*it).second;
     WRectF r(COL_SIZE*c->GetX(), ROW_SIZE*c->GetY(), COL_SIZE, ROW_SIZE);
     painter.fillRect(r, WBrush(toWColor(c->GetBackground())));
     std::string value = c->GetValue();

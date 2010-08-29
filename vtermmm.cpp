@@ -2,6 +2,7 @@
 #include "vtcell.h"
 
 #include <algorithm>
+#include <sstream>
 
 VTermMM::VTermMM(int rows, int columns)
   : fd(0),
@@ -33,14 +34,21 @@ void VTermMM::reset_invalid()
   invalid_region.clear();
 }
 
-std::vector<VTCell*>::iterator VTermMM::GetInvalidBegin()
+InvalidRegionIter VTermMM::GetInvalidBegin()
 {
   return invalid_region.begin();
 }
 
-std::vector<VTCell*>::iterator VTermMM::GetInvalidEnd()
+InvalidRegionIter VTermMM::GetInvalidEnd()
 {
   return invalid_region.end();
+}
+
+static std::string make_key(int x, int y)
+{
+  std::ostringstream s;
+  s << x << "," << y;
+  return s.str();
 }
 
 void VTermMM::invalidate(int sr, int er, int sc, int ec)
@@ -49,7 +57,11 @@ void VTermMM::invalidate(int sr, int er, int sc, int ec)
   {
     for(int col = sc; col < ec; col++)
     {
-      invalid_region.push_back(&cells[row][col]);
+      VTCell *c = &cells[row][col];
+      std::string k = make_key(col, row);
+      InvalidRegionPair v = InvalidRegionPair(k, c);
+      if(invalid_region.find(k) == invalid_region.end())
+        invalid_region.insert(v);
     }
   }
 }
@@ -61,7 +73,11 @@ void VTermMM::invalidate(VTermRect r)
 
 void VTermMM::invalidate(VTermPos p)
 {
-  invalid_region.push_back(&cells[p.row][p.col]);
+  VTCell *c = &cells[p.row][p.col];
+  std::string k = make_key(p.col, p.row);
+  InvalidRegionPair v = InvalidRegionPair(k, c);
+  if(invalid_region.find(k) == invalid_region.end())
+    invalid_region.insert(v);
 }
 
 int VTermMM::putglyph(const uint32_t chars[], int width, VTermPos pos)
