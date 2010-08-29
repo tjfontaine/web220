@@ -1,4 +1,6 @@
 #include "vtermmm.h"
+#include "vtcell.h"
+
 #include <algorithm>
 
 VTermMM::VTermMM(int rows, int columns)
@@ -6,11 +8,19 @@ VTermMM::VTermMM(int rows, int columns)
     foreground(VTERMMM_WHITE),
     background(VTERMMM_BLACK),
     cells(rows, vrow(columns)),
-    reverse(false)
+    reverse(false),
+    invalid_region()
 {
+  for(int row = 0; row < rows; ++row)
+  {
+    for(int col = 0; col < columns; ++col)
+    {
+      cells[row][col].SetX(col);
+      cells[row][col].SetY(row);
+    }
+  }
   cursor.row = 0;
   cursor.col = 0;
-  reset_invalid();
   invalidate(0, rows, 0, columns);
   _term = vterm_new(rows, columns);
   vterm_parser_set_utf8(_term, 1);
@@ -20,66 +30,27 @@ VTermMM::VTermMM(int rows, int columns)
 
 void VTermMM::reset_invalid()
 {
-  invalid_region.start_row = -1;
-  invalid_region.end_row = -1;
-  invalid_region.start_col = -1;
-  invalid_region.end_col = -1;
+  invalid_region.clear();
 }
 
-VTermRect VTermMM::getInvalid()
+std::vector<VTCell*>::iterator VTermMM::GetInvalidBegin()
 {
-  VTermRect ir = invalid_region;
-  int max_row = 0;
-  int max_col = 0;
-  vterm_get_size(_term, &max_row, &max_col);
-  ir.start_row = std::max(ir.start_row, 0);
-  ir.start_col = std::max(ir.start_col, 0);
-  ir.end_row = std::min(ir.end_row, max_row);
-  ir.end_col = std::min(ir.end_col, max_col);
-  return ir;
+  return invalid_region.begin();
+}
+
+std::vector<VTCell*>::iterator VTermMM::GetInvalidEnd()
+{
+  return invalid_region.end();
 }
 
 void VTermMM::invalidate(int sr, int er, int sc, int ec)
 {
-  sr = std::max(sr, 0);
-  er = std::max(er, 0);
-  sc = std::max(sc, 0);
-  ec = std::max(ec, 0);
-
-  if(invalid_region.start_row == -1)
+  for(int row = sr; row < er; row++)
   {
-    invalid_region.start_row = sr;
-  }
-  else
-  {
-    invalid_region.start_row = std::min(sr, invalid_region.start_row);
-  }
-
-  if(invalid_region.end_row == -1)
-  {
-    invalid_region.end_row = er;
-  }
-  else
-  {
-    invalid_region.end_row = std::max(er, invalid_region.end_row);
-  }
-
-  if(invalid_region.start_col == -1)
-  {
-    invalid_region.start_col = sc;
-  }
-  else
-  {
-    invalid_region.start_col = std::min(sc, invalid_region.start_col);
-  }
-
-  if(invalid_region.end_col == -1)
-  {
-    invalid_region.end_col = ec;
-  }
-  else
-  {
-    invalid_region.end_col = std::max(ec, invalid_region.end_col);
+    for(int col = sc; col < ec; col++)
+    {
+      invalid_region.push_back(&cells[row][col]);
+    }
   }
 }
 
@@ -90,12 +61,7 @@ void VTermMM::invalidate(VTermRect r)
 
 void VTermMM::invalidate(VTermPos p)
 {
-  invalidate(p.row, p.row+1, p.col, p.col+1);
-}
-
-bool VTermMM::isDirty()
-{
-  return invalid_region.end_row != -1 && invalid_region.start_row != -1 && invalid_region.end_col != -1 && invalid_region.start_col != -1;
+  invalid_region.push_back(&cells[p.row][p.col]);
 }
 
 int VTermMM::putglyph(const uint32_t chars[], int width, VTermPos pos)
@@ -111,7 +77,14 @@ int VTermMM::putglyph(const uint32_t chars[], int width, VTermPos pos)
     b = foreground;
   }
 
-  cells[pos.row][pos.col].set(s, f, b, bold, italic);
+  VTCell &c = cells[pos.row][pos.col];
+  c.SetX(pos.col);
+  c.SetY(pos.row);
+  c.SetValue(s);
+  c.SetForeground(f);
+  c.SetBackground(b);
+  c.SetBold(bold);
+  c.SetItalic(italic);
   return 1;
 }
 
@@ -119,6 +92,7 @@ int VTermMM::movecursor(VTermPos pos, VTermPos oldpos, int visible)
 {
   cursor = pos;
   cursor_visible = visible;
+  invalidate(oldpos);
   return 1;
 }
 
@@ -132,6 +106,9 @@ int VTermMM::copyrect(VTermRect dst, VTermRect src)
     {
       int dst_col = dst.start_col + col - src.start_col;
       cells[dst_row][dst_col] = cells[row][col];
+      VTCell &c = cells[dst_row][dst_col];
+      c.SetX(dst_col);
+      c.SetY(dst_row);
     }
   }
   return 1;
@@ -141,6 +118,9 @@ int VTermMM::copycell(VTermPos dest, VTermPos src)
 {
   invalidate(dest);
   cells[dest.row][dest.col] = cells[src.row][src.col];
+  VTCell &c = cells[dest.row][dest.col];
+  c.SetX(dest.col);
+  c.SetY(dest.row);
   return 1;
 }
 
@@ -160,7 +140,12 @@ int VTermMM::erase(VTermRect rect)
   {
     for(int col=rect.start_col; col<rect.end_col; ++col)
     {
-      cells[row][col].set(" ", f, b);
+      VTCell &c = cells[row][col];
+      c.SetValue(" ");
+      c.SetForeground(f);
+      c.SetBackground(b);
+      c.SetBold(false);
+      c.SetItalic(false);
     }
   } 
   return 1;

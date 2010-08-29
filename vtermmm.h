@@ -9,43 +9,11 @@ extern "C" {
 #include <iostream>
 #include <vector>
 
+#include "vtcell.h"
+
 static VTermColor VTERMMM_WHITE = { 255, 255, 255 };
 static VTermColor VTERMMM_BLACK = { 0, 0, 0 };
 
-class VTCell
-{
-  public:
-    VTCell(const std::string &v = " ", VTermColor f = VTERMMM_WHITE, VTermColor b = VTERMMM_BLACK) :
-      bold(false),
-      italic(false)
-    {
-      set(v, f, b);
-    }
-
-    VTCell(const VTCell& c)
-    {
-      value = c.value;
-      fg_color = c.fg_color;
-      bg_color = c.bg_color;
-      bold = c.bold;
-      italic = c.italic;
-    }
-
-    void set(const std::string &v, VTermColor f, VTermColor b, bool bld = false, bool itlc = false)
-    {
-      value = v;
-      fg_color = f;
-      bg_color = b;
-      bold = bld;
-      italic = itlc;
-    }
-
-    VTermColor fg_color;  
-    VTermColor bg_color;
-    std::string value;
-    bool bold;
-    bool italic;
-};
 
 class VTermMM
 {
@@ -53,7 +21,6 @@ class VTermMM
     VTerm *_term;
     int fd;
     void process_in_out();
-    VTermRect invalid_region;
     void invalidate(int, int, int, int);
     void invalidate(VTermRect);
     void invalidate(VTermPos);
@@ -62,13 +29,16 @@ class VTermMM
     bool reverse;
     bool bold;
     bool italic;
+    std::vector<VTCell*> invalid_region;
+    typedef std::vector<VTCell> vrow;
+    std::vector<vrow> cells;
 
   public:
     VTermMM(int rows=25, int columns=80);
     void reset_invalid();
-    VTermRect getInvalid();
+    std::vector<VTCell*>::iterator GetInvalidBegin();
+    std::vector<VTCell*>::iterator GetInvalidEnd();
     void setFD(int filedesc) { fd = filedesc; }
-    bool isDirty();
     void feed(const std::string &, VTermModifier mod = VTERM_MOD_NONE);
     void feed(VTermKey k, VTermModifier mod = VTERM_MOD_NONE);
     void feed(char c, VTermModifier mod = VTERM_MOD_NONE);
@@ -84,8 +54,6 @@ class VTermMM
     int setmousefunc(VTermMouseFunc, void *);
     int bell();
     int resize(int, int);
-    typedef std::vector<VTCell> vrow;
-    std::vector<vrow> cells;
     bool cursor_visible;
     VTermPos cursor;
 };

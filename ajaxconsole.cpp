@@ -192,67 +192,44 @@ static const WColor toWColor(VTermColor c)
 
 void AjaxConsole::paintEvent(WPaintDevice *paintDevice)
 {
-  if(!term_->isDirty())
-    return;
-
   WPainter painter(paintDevice);
   WFont f;
   f.setFamily(WFont::Monospace);
-  //painter.setFont(f);
 
-  VTermRect rect = term_->getInvalid();
+  std::vector<VTCell*>::iterator it = term_->GetInvalidBegin();
+  std::vector<VTCell*>::iterator end = term_->GetInvalidEnd();
 
-  int col_width = (rect.end_col-rect.start_col)*COL_SIZE;
-  int row_width = (rect.end_row-rect.start_row)*ROW_SIZE;
-  WRectF clear_rect = WRectF(rect.start_col*COL_SIZE, rect.start_row*ROW_SIZE, col_width, row_width);
-  painter.fillRect(clear_rect, WBrush(toWColor(VTERMMM_BLACK)));
-
-  #if WEB220_DEBUG_DRAW
-  std::cerr << "IR: " << rect.start_row << "," << rect.end_row << "," << rect.start_col << "," << rect.end_col << std::endl;
-  std::cerr << "CR: " << clear_rect.x() << "," << clear_rect.y() << "," << clear_rect.width() << "," << clear_rect.height() << std::endl;
-  painter.setPen(WPen(WColor("White")));
-  painter.drawRect(clear_rect);
-  #endif
-
-  for(int row=rect.start_row; row<rect.end_row; ++row)
+  for(; it != end; ++it)
   {
-    for(int col=rect.start_col; col<rect.end_col; ++col)
+    VTCell *c = *it;
+    WRectF r(COL_SIZE*c->GetX(), ROW_SIZE*c->GetY(), COL_SIZE, ROW_SIZE);
+    painter.fillRect(r, WBrush(toWColor(c->GetBackground())));
+    std::string value = c->GetValue();
+    //std::cerr << *c << std::endl;
+    if(value != " ")
     {
-      VTCell c = term_->cells[row][col];
-      WRectF r(COL_SIZE*(col), ROW_SIZE*(row), COL_SIZE, ROW_SIZE);
+      painter.setPen(WPen(toWColor(c->GetForeground())));
 
-      #if WEB220_DEBUG_DRAW
-      std::cerr << "R: ["<< row << "," << col << "] " << r.x() << "," << r.y() << "," << r.width() << "," << r.height() << std::endl;
-      painter.setPen(WPen(WColor("blue")));
-      painter.drawRect(r);
-      #endif
-
-      painter.fillRect(r, WBrush(toWColor(c.bg_color)));
-      if(c.value != " ")
+      if(c->GetBold())
       {
-        painter.setPen(WPen(toWColor(c.fg_color)));
-
-        if(c.bold)
-        {
-          f.setWeight(WFont::Bolder);
-        }
-        else
-        {
-          f.setWeight(WFont::NormalWeight);
-        }
-
-        if(c.italic)
-        {
-          f.setStyle(WFont::Italic);
-        }
-        else
-        {
-          f.setStyle(WFont::NormalStyle);
-        }
-
-        painter.setFont(f);
-        painter.drawText((COL_SIZE*(col+1)), (ROW_SIZE*(row+1)), 0, 0, AlignRight|AlignBottom, c.value);
+        f.setWeight(WFont::Bolder);
       }
+      else
+      {
+        f.setWeight(WFont::NormalWeight);
+      }
+
+      if(c->GetItalic())
+      {
+        f.setStyle(WFont::Italic);
+      }
+      else
+      {
+        f.setStyle(WFont::NormalStyle);
+      }
+
+      painter.setFont(f);
+      painter.drawText(COL_SIZE*(c->GetX()+1), ROW_SIZE*(c->GetY()+1), 0, 0, AlignRight|AlignBottom, value);
     }
   }
 
