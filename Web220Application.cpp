@@ -1,12 +1,12 @@
 #include "Web220Application.h"
+#include "Web220Container.h"
 #include "FakeDom.h"
-#include "ajaxconsole.cpp"
 
 Web220Application::Web220Application(const WEnvironment &env)
   : Wt::WApplication(env, new FakeDom())
 {
   setTitle("Ajax Console");
-  new AjaxConsoleOuter(root());
+  new Web220Container(root());
 }
 
 Wt::WApplication *createApplication(const Wt::WEnvironment& env)

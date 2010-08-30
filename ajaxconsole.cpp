@@ -255,34 +255,3 @@ void AjaxConsole::process(WApplication *app)
     }
   }
 }
-
-class AjaxConsoleOuter : public WContainerWidget
-{
-  private:
-    AjaxConsole *console;
-    WApplication *app;
-    boost::thread processor;
-    //Wt::JSlot keyWentUp_;
-
-  public:
-    AjaxConsoleOuter(WContainerWidget *root) : WContainerWidget(root),
-      app(WApplication::instance())
-    {
-      console = new AjaxConsole(25, 80, this);
-      //EventSignal<WKeyEvent> &s = app->globalKeyWentUp();
-      //s.preventPropagation();
-      //s.connect(console, &AjaxConsole::keyWentUpEvent);
-
-      EventSignal<WKeyEvent> &s1 = app->globalKeyWentDown();
-      //s1.preventPropagation();
-      s1.connect(console, &AjaxConsole::keyWentDownEvent);
-
-      /* Most of the time won't get fired because we suppress keydown */
-      EventSignal<WKeyEvent> &s2 = app->globalKeyPressed();
-      //s2.preventPropagation();
-      s2.connect(console, &AjaxConsole::keyPressedEvent);
-
-      app->enableUpdates();
-      processor = boost::thread(boost::bind(&AjaxConsole::process, console, app));
-    }
-};
