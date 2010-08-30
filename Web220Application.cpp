@@ -1,4 +1,5 @@
 #include "Web220Application.h"
+#include "FakeDom.h"
 #include "ajaxconsole.cpp"
 
 Web220Application::Web220Application(const WEnvironment &env)

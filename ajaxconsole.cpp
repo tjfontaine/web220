@@ -301,22 +301,3 @@ class keyWentDownStopBackspace : public EventSignal<WKeyEvent>
     }
 };
 
-class FakeDom: public WContainerWidget
-{
-  public:
-    FakeDom() : WContainerWidget()
-    {
-    }
-
-    EventSignal<WKeyEvent> &keyWentDown()
-    {
-      EventSignalBase *b = getEventSignal("keydown");
-      if(b)
-      {
-        return *static_cast<EventSignal<WKeyEvent> *>(b);
-      }
-      keyWentDownStopBackspace *result = new keyWentDownStopBackspace("keydown", this);
-      addEventSignal(*result);
-      return *result;
-    }
-};
