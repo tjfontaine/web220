@@ -1,4 +1,4 @@
-#include "vtermmm.h"
+#include "VTermMM.h"
 
 int term_putglyph(const uint32_t chars[], int width, VTermPos pos, void *user) 
 {

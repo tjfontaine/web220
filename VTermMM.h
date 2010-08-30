@@ -1,5 +1,5 @@
-#ifndef _VTERMMM_H_DEFINED
-#define _VTERMMM_H_DEFINED
+#ifndef VTERMMM_H
+#define VTERMMM_H
 
 extern "C" {
   #include <vterm.h>

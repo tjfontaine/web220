@@ -13,7 +13,7 @@
 
 #include <iostream>
 
-#include "vtermmm.h"
+#include "VTermMM.h"
 
 #include <boost/thread.hpp>
 #include <stdio.h>

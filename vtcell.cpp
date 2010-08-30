@@ -1,5 +1,5 @@
 #include "vtcell.h"
-#include "vtermmm.h"
+#include "VTermMM.h"
 
 VTCell::VTCell() :
   m_x(0),

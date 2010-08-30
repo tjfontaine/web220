@@ -1,4 +1,4 @@
-#include "vtermmm.h"
+#include "VTermMM.h"
 #include "vtcell.h"
 
 #include <algorithm>
