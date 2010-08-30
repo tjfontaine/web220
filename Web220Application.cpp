@@ -2,7 +2,7 @@
 #include "Web220Container.h"
 #include "FakeDom.h"
 
-Web220Application::Web220Application(const WEnvironment &env)
+Web220Application::Web220Application(const Wt::WEnvironment &env)
   : Wt::WApplication(env, new FakeDom())
 {
   setTitle("Ajax Console");

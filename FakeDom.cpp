@@ -1,6 +1,5 @@
 #include "FakeDom.h"
 #include "keyWentDownPrevent.h"
-#include "ajaxconsole.cpp"
 
 FakeDom::FakeDom() : Wt::WContainerWidget()
 {
