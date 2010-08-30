@@ -320,23 +320,3 @@ class FakeDom: public WContainerWidget
       return *result;
     }
 };
-
-class AjaxConsoleApp: public WApplication
-{
-  public:
-    AjaxConsoleApp(const WEnvironment &env) : WApplication(env, new FakeDom())
-    {
-      setTitle("Ajax Console");
-      new AjaxConsoleOuter(root());
-    }
-};
-
-WApplication *createApplication(const WEnvironment& env)
-{
-  return new AjaxConsoleApp(env);
-}
-
-int main(int argc, char **argv)
-{
-  return WRun(argc, argv, &createApplication);
-}
