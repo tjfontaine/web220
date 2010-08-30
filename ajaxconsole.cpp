@@ -286,18 +286,3 @@ class AjaxConsoleOuter : public WContainerWidget
       processor = boost::thread(boost::bind(&AjaxConsole::process, console, app));
     }
 };
-
-class keyWentDownStopBackspace : public EventSignal<WKeyEvent>
-{
-  public:
-    keyWentDownStopBackspace(const char *name, WContainerWidget *wcw) : EventSignal<WKeyEvent>(name, wcw)
-    {
-    }
-
-    const std::string javaScript() const
-    {
-      std::string result = EventSignal<WKeyEvent>::javaScript();
-      return result + "var ignoreCodes=[8,9,33,34,35,36,37,38,39,40,45,46];if(ignoreCodes.indexOf(e.keyCode) > -1){ "+ WT_CLASS + ".cancelEvent(e);}";
-    }
-};
-

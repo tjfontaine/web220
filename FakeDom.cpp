@@ -1,4 +1,5 @@
 #include "FakeDom.h"
+#include "keyWentDownPrevent.h"
 #include "ajaxconsole.cpp"
 
 FakeDom::FakeDom() : Wt::WContainerWidget()
@@ -13,7 +14,7 @@ Wt::EventSignal<Wt::WKeyEvent>& FakeDom::keyWentDown()
     return *static_cast<Wt::EventSignal<Wt::WKeyEvent> *>(b);
   }
 
-  keyWentDownStopBackspace *result = new keyWentDownStopBackspace("keydown", this);
+  keyWentDownPrevent *result = new keyWentDownPrevent("keydown", this);
   addEventSignal(*result);
   return *result;
 }
