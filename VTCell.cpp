@@ -1,4 +1,4 @@
-#include "vtcell.h"
+#include "VTCell.h"
 #include "VTermMM.h"
 
 VTCell::VTCell() :

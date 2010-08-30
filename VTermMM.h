@@ -10,7 +10,7 @@ extern "C" {
 #include <map>
 #include <vector>
 
-#include "vtcell.h"
+#include "VTCell.h"
 
 static VTermColor VTERMMM_WHITE = { 255, 255, 255 };
 static VTermColor VTERMMM_BLACK = { 0, 0, 0 };

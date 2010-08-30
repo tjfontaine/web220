@@ -1,5 +1,5 @@
-#ifndef _VTCELL_H_DEFINED
-#define _VTCELL_H_DEFINED
+#ifndef VTCELL_H
+#define VTCELL_H
 
 #include <iostream>
 

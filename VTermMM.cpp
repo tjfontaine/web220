@@ -1,5 +1,5 @@
 #include "VTermMM.h"
-#include "vtcell.h"
+#include "VTCell.h"
 
 #include <algorithm>
 #include <sstream>
