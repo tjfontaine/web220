@@ -145,6 +145,8 @@ void Web220Console::keyWentDownEvent(const Wt::WKeyEvent &e)
         mod = VTERM_MOD_NONE;
       }
       break;
+    default:
+      break;
   }
 
   if(k != VTERM_KEY_NONE)
@@ -167,6 +169,7 @@ static const Wt::WColor toWColor(VTermColor c)
 
 void Web220Console::paintEvent(Wt::WPaintDevice *paintDevice)
 {
+  boost::mutex::scoped_lock  lock(term_->GetLock());
   Wt::WPainter painter(paintDevice);
   Wt::WFont f;
   f.setFamily(Wt::WFont::Monospace);

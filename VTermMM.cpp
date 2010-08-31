@@ -53,6 +53,7 @@ static std::string make_key(int x, int y)
 
 void VTermMM::invalidate(int sr, int er, int sc, int ec)
 {
+  boost::mutex::scoped_lock lock(m_mutex);
   for(int row = sr; row < er; row++)
   {
     for(int col = sc; col < ec; col++)
@@ -73,6 +74,7 @@ void VTermMM::invalidate(VTermRect r)
 
 void VTermMM::invalidate(VTermPos p)
 {
+  boost::mutex::scoped_lock lock(m_mutex);
   VTCell *c = &cells[p.row][p.col];
   std::string k = make_key(p.col, p.row);
   InvalidRegionPair v = InvalidRegionPair(k, c);

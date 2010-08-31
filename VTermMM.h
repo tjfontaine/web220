@@ -10,13 +10,15 @@ extern "C" {
 #include <map>
 #include <vector>
 
+#include <boost/thread/mutex.hpp>
+
 #include "VTCell.h"
 
 static VTermColor VTERMMM_WHITE = { 255, 255, 255 };
 static VTermColor VTERMMM_BLACK = { 0, 0, 0 };
 
 typedef std::map<std::string, VTCell*> InvalidRegion;
-typedef InvalidRegion::iterator InvalidRegionIter;
+typedef InvalidRegion::const_iterator InvalidRegionIter;
 typedef std::pair<std::string, VTCell*> InvalidRegionPair;
 
 class VTermMM
@@ -36,6 +38,7 @@ class VTermMM
     InvalidRegion invalid_region;
     typedef std::vector<VTCell> vrow;
     std::vector<vrow> cells;
+    boost::mutex m_mutex;
 
   public:
     VTermMM(int rows=25, int columns=80);
@@ -60,6 +63,7 @@ class VTermMM
     int resize(int, int);
     bool cursor_visible;
     VTermPos cursor;
+    boost::mutex& GetLock() { return m_mutex; }
 };
 
 int term_putglyph(const uint32_t chars[], int width, VTermPos pos, void *user);
